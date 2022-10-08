@@ -30,6 +30,7 @@ prod: prepare $(EXE_FILES:.c=)
 prod:
 	@[ ! -d $(LIB_DIR) ] && mkdir $(LIB_DIR) || true
 	gcc -shared $(FLAGS) -o $(LIB_DIR)libmatrix.so $(OBJ_FILES)
+	ar rcs $(LIB_DIR)libmatrix.a $(OBJ_FILES)
 	@echo "Compiled for production."
 
 # `make dev`: compile all files for development (with debug symbols)
