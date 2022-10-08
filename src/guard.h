@@ -30,3 +30,6 @@
 	}
 
 #endif
+
+#define MATRIX_SAFE_GUARD_DECLARE(_matrix_type, _data_type, _index_type)                           \
+	static inline bool _matrix_type##_out_range(_matrix_type* m, _index_type row, _index_type col);

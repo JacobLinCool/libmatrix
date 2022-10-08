@@ -16,7 +16,7 @@
 #include "oxidation.h"
 #include "utils.h"
 
-#define MATRIX(_name, _data_type, _index_type)                                                     \
+#define MATRIX_STRUCT(_name, _data_type, _index_type)                                              \
 	typedef struct {                                                                               \
 		_index_type row;                                                                           \
 		_index_type col;                                                                           \
@@ -32,10 +32,9 @@
 		u8				size;                                                                      \
 		_name##Element* data;                                                                      \
 		char*			name;                                                                      \
-	} _name;                                                                                       \
-                                                                                                   \
-	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
-                                                                                                   \
+	} _name;
+
+#define MATRIX_METHOD(_name, _data_type, _index_type)                                              \
 	_name* _name##_new(_index_type row, _index_type col) {                                         \
 		_name* m = malloc(sizeof(_name));                                                          \
 		m->size = 1;                                                                               \
@@ -300,3 +299,30 @@
 		}                                                                                          \
 		return m;                                                                                  \
 	}
+
+#define MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)                                      \
+	_name*		 _name##_new(_index_type row, _index_type col);                                    \
+	void		 _name##_free(_name* m);                                                           \
+	void		 _name##_change_name(_name* m, char* name);                                        \
+	_name##Found _name##_find(_name* m, _index_type row, _index_type col);                         \
+	void		 _name##_set(_name* m, _index_type row, _index_type col, _data_type val);          \
+	_data_type	 _name##_get(_name* m, _index_type row, _index_type col);                          \
+	_data_type*	 _name##_to_1d(_name* m);                                                          \
+	_data_type** _name##_to_2d(_name* m);                                                          \
+	void		 _name##_resize(_name* m, _index_type row, _index_type col);                       \
+	_name*		 _name##_transpose(_name* m);                                                      \
+	_name*		 _name##_add(_name* a, _name* b);                                                  \
+	_name*		 _name##_scale(_name* m, _data_type scalar);                                       \
+	_name*		 _name##_multiply(_name* a, _name* b);                                             \
+	_name*		 _name##_from_1d(_data_type* data, _index_type row, _index_type col);              \
+	_name*		 _name##_from_2d(_data_type** data, _index_type row, _index_type col);
+
+#define MATRIX(_name, _data_type, _index_type)                                                     \
+	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
+	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
+	MATRIX_METHOD(_name, _data_type, _index_type)
+
+#define MATRIX_DECLARE(_name, _data_type, _index_type)                                             \
+	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
+	MATRIX_SAFE_GUARD_DECLARE(_name, _data_type, _index_type)                                      \
+	MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)
