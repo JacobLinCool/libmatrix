@@ -12,6 +12,7 @@
 
 #include <string.h>
 
+#include "guard.h"
 #include "oxidation.h"
 #include "utils.h"
 
@@ -32,6 +33,8 @@
 		_name##Element* data;                                                                      \
 		char*			name;                                                                      \
 	} _name;                                                                                       \
+                                                                                                   \
+	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
                                                                                                    \
 	_name* _name##_new(_index_type row, _index_type col) {                                         \
 		_name* m = malloc(sizeof(_name));                                                          \
@@ -54,6 +57,9 @@
 	}                                                                                              \
                                                                                                    \
 	_name##Found _name##_find(_name* m, _index_type row, _index_type col) {                        \
+		if (_name##_out_range(m, row, col)) {                                                      \
+			return (_name##Found){false, 0};                                                       \
+		}                                                                                          \
 		_index_type lower = 1;                                                                     \
 		_index_type upper = m->data[0].val + 1;                                                    \
 		while (lower < upper) {                                                                    \
@@ -71,6 +77,9 @@
 	}                                                                                              \
                                                                                                    \
 	void _name##_set(_name* m, _index_type row, _index_type col, _data_type val) {                 \
+		if (_name##_out_range(m, row, col)) {                                                      \
+			return;                                                                                \
+		}                                                                                          \
 		_name##Found found = _name##_find(m, row, col);                                            \
 		if (val == 0) {                                                                            \
 			if (found.exists) {                                                                    \
@@ -97,6 +106,9 @@
 	}                                                                                              \
                                                                                                    \
 	_data_type _name##_get(_name* m, _index_type row, _index_type col) {                           \
+		if (_name##_out_range(m, row, col)) {                                                      \
+			return 0;                                                                              \
+		}                                                                                          \
 		_name##Found found = _name##_find(m, row, col);                                            \
 		if (found.exists) {                                                                        \
 			return m->data[found.index].val;                                                       \
