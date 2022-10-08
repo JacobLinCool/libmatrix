@@ -12,7 +12,7 @@ int main() {
 	srand(1481);
 
 	Matrix* matrix = Matrix_new(2, 2);
-	Matrix_change_name(matrix, "matrix");
+	Matrix_rename(matrix, "matrix");
 	assert(strcmp(matrix->name, "matrix") == 0);
 	assert(matrix->data[0].row == 2);
 	assert(matrix->data[0].col == 2);

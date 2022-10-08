@@ -32,7 +32,7 @@ Then, you can use all the functions that are defined for `MyMatrix`:
 * `MatrixType_transpose`
 * `MatrixType_add`
 * `MatrixType_multiply`
-* `MatrixType_change_name`
+* `MatrixType_rename`
 
 ### Matrix Creation
 
@@ -60,13 +60,13 @@ MyMatrix* matrix = MyMatrix_from_2d(data, 3, 3);
 
 No matter how you create a matrix, the matrix will get a random name of 4 characters.
 
-You can change the name of the matrix with `MatrixType_change_name`:
+You can change the name of the matrix with `MatrixType_rename`:
 
 ```c
-MyMatrix_change_name(matrix, "My Matrix Alpha");
+MyMatrix_rename(matrix, "My Matrix Alpha");
 ```
 
-The name string will be copied, so you can free it after calling `MatrixType_change_name`.
+The name string will be copied, so you can free it after calling `MatrixType_rename`.
 
 If a matrix is no longer needed, you can free it with `MatrixType_free`:
 

@@ -50,7 +50,7 @@
 		free(m);                                                                                   \
 	}                                                                                              \
                                                                                                    \
-	void _name##_change_name(_name* m, char* name) {                                               \
+	void _name##_rename(_name* m, char* name) {                                                    \
 		free(m->name);                                                                             \
 		m->name = strdup(name);                                                                    \
 	}                                                                                              \
@@ -303,7 +303,7 @@
 #define MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)                                      \
 	_name*		 _name##_new(_index_type row, _index_type col);                                    \
 	void		 _name##_free(_name* m);                                                           \
-	void		 _name##_change_name(_name* m, char* name);                                        \
+	void		 _name##_rename(_name* m, char* name);                                             \
 	_name##Found _name##_find(_name* m, _index_type row, _index_type col);                         \
 	void		 _name##_set(_name* m, _index_type row, _index_type col, _data_type val);          \
 	_data_type	 _name##_get(_name* m, _index_type row, _index_type col);                          \
