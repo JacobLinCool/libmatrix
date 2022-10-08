@@ -317,10 +317,16 @@
 	_name*		 _name##_from_1d(_data_type* data, _index_type row, _index_type col);              \
 	_name*		 _name##_from_2d(_data_type** data, _index_type row, _index_type col);
 
+/**
+ * @brief You can use this macro to create a matrix type and its methods.
+ */
 #define MATRIX(_name, _data_type, _index_type)                                                     \
 	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
 	MATRIX_METHOD(_name, _data_type, _index_type)
 
+/**
+ * @brief You can use this macro to declare a matrix type and its methods in a header file.
+ */
 #define MATRIX_DECLARE(_name, _data_type, _index_type)                                             \
 	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
 	MATRIX_SAFE_GUARD_DECLARE(_name, _data_type, _index_type)                                      \
