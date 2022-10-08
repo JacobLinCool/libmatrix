@@ -74,7 +74,7 @@
 		_name##Found found = _name##_find(m, row, col);                                            \
 		if (val == 0) {                                                                            \
 			if (found.exists) {                                                                    \
-				for (_index_type i = found.index; i < m->data[0].val; i++) {                       \
+				for (_index_type i = found.index; i < m->data[0].val; ++i) {                       \
 					m->data[i] = m->data[i + 1];                                                   \
 				}                                                                                  \
 				memset(m->data + (size_t)m->data[0].val, 0, sizeof(_name##Element));               \
