@@ -318,7 +318,6 @@
 	_name*		 _name##_from_2d(_data_type** data, _index_type row, _index_type col);
 
 #define MATRIX(_name, _data_type, _index_type)                                                     \
-	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
 	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
 	MATRIX_METHOD(_name, _data_type, _index_type)
 
