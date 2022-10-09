@@ -17,22 +17,27 @@
 #include "utils.h"
 
 #define MATRIX_STRUCT(_name, _data_type, _index_type)                                              \
-	typedef struct {                                                                               \
+	typedef struct _name##Element {                                                                \
 		_index_type row;                                                                           \
 		_index_type col;                                                                           \
 		_data_type	val;                                                                           \
 	} _name##Element;                                                                              \
                                                                                                    \
-	typedef struct {                                                                               \
+	typedef struct _name##Found {                                                                  \
 		bool		exists;                                                                        \
 		_index_type index;                                                                         \
 	} _name##Found;                                                                                \
                                                                                                    \
-	typedef struct {                                                                               \
+	typedef struct _name {                                                                         \
 		u8				size;                                                                      \
 		_name##Element* data;                                                                      \
 		char*			name;                                                                      \
 	} _name;
+
+#define MATRIX_STRUCT_DECLARE(_name, _data_type, _index_type)                                      \
+	typedef struct _name##Element _name##Element;                                                  \
+	typedef struct _name##Found	  _name##Found;                                                    \
+	typedef struct _name		  _name;
 
 #define MATRIX_METHOD(_name, _data_type, _index_type)                                              \
 	_name* _name##_new(_index_type row, _index_type col) {                                         \
@@ -407,6 +412,7 @@
  * @brief You can use this macro to create a matrix type and its methods.
  */
 #define MATRIX(_name, _data_type, _index_type)                                                     \
+	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
 	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
 	MATRIX_METHOD(_name, _data_type, _index_type)
 
@@ -414,6 +420,6 @@
  * @brief You can use this macro to declare a matrix type and its methods in a header file.
  */
 #define MATRIX_DECLARE(_name, _data_type, _index_type)                                             \
-	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
+	MATRIX_STRUCT_DECLARE(_name, _data_type, _index_type)                                          \
 	MATRIX_SAFE_GUARD_DECLARE(_name, _data_type, _index_type)                                      \
 	MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)

@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-MATRIX_DECLARE(Matrix, f64, u32);
 MATRIX(Matrix, f64, u32);
 
 void test_operations();
