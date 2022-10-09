@@ -44,6 +44,22 @@
 		return m;                                                                                  \
 	}                                                                                              \
                                                                                                    \
+	_name* _name##_identity(_index_type size) {                                                    \
+		_name* m = malloc(sizeof(_name));                                                          \
+		u64	   init_size = 1, tmp = size;                                                          \
+		while (tmp >>= 1) {                                                                        \
+			init_size <<= 1;                                                                       \
+		}                                                                                          \
+		m->size = init_size;                                                                       \
+		m->data = malloc(sizeof(_name##Element) * (init_size << 1));                               \
+		m->data[0] = (_name##Element){size, size, size};                                           \
+		for (u64 i = 0; i < size; i++) {                                                           \
+			m->data[i + 1] = (_name##Element){i, i, 1};                                            \
+		}                                                                                          \
+		m->name = random_name(4);                                                                  \
+		return m;                                                                                  \
+	}                                                                                              \
+                                                                                                   \
 	void _name##_free(_name* m) {                                                                  \
 		free(m->data);                                                                             \
 		free(m->name);                                                                             \
@@ -236,7 +252,7 @@
 		_data_type	sum = 0;                                                                       \
                                                                                                    \
 		while (i <= a->data[0].val) {                                                              \
-			if (a->data[i].col != b_t->data[j].col) {                                              \
+			if (a->data[i].col == b_t->data[j].col) {                                              \
 				sum += a->data[i].val * b_t->data[j].val;                                          \
 				++j;                                                                               \
 			} else if (a->data[i].col < b_t->data[j].col) {                                        \
@@ -276,6 +292,28 @@
 		return m;                                                                                  \
 	}                                                                                              \
                                                                                                    \
+	_name* _name##_hadamard(_name* a, _name* b) {                                                  \
+		_name* m = _name##_new(a->data[0].row, a->data[0].col);                                    \
+                                                                                                   \
+		_index_type i = 1, j = 1;                                                                  \
+		while (i <= a->data[0].val && j <= b->data[0].val) {                                       \
+			if (a->data[i].row < b->data[j].row) {                                                 \
+				++i;                                                                               \
+			} else if (a->data[i].row > b->data[j].row) {                                          \
+				++j;                                                                               \
+			} else if (a->data[i].col < b->data[j].col) {                                          \
+				++i;                                                                               \
+			} else if (a->data[i].col > b->data[j].col) {                                          \
+				++j;                                                                               \
+			} else {                                                                               \
+				_name##_set(m, a->data[i].row, a->data[i].col, a->data[i].val * b->data[j].val);   \
+				++i, ++j;                                                                          \
+			}                                                                                      \
+		}                                                                                          \
+                                                                                                   \
+		return m;                                                                                  \
+	}                                                                                              \
+                                                                                                   \
 	_name* _name##_from_1d(_data_type* data, _index_type row, _index_type col) {                   \
 		_name* m = _name##_new(row, col);                                                          \
 		for (_index_type i = 0; i < row; ++i) {                                                    \
@@ -298,10 +336,55 @@
 			}                                                                                      \
 		}                                                                                          \
 		return m;                                                                                  \
+	}                                                                                              \
+                                                                                                   \
+	_name* _name##_submatrix(_name* m, bool* rows, bool* cols) {                                   \
+		_index_type row_map[m->data[0].row], col_map[m->data[0].col];                              \
+		row_map[0] = rows[0] ? 1 : 0;                                                              \
+		col_map[0] = cols[0] ? 1 : 0;                                                              \
+                                                                                                   \
+		for (_index_type i = 1; i < m->data[0].row; ++i) {                                         \
+			row_map[i] = rows[i] ? row_map[i - 1] + 1 : row_map[i - 1];                            \
+		}                                                                                          \
+		for (_index_type i = 1; i < m->data[0].col; ++i) {                                         \
+			col_map[i] = cols[i] ? col_map[i - 1] + 1 : col_map[i - 1];                            \
+		}                                                                                          \
+                                                                                                   \
+		_name* sub = _name##_new(row_map[m->data[0].row - 1], col_map[m->data[0].col - 1]);        \
+                                                                                                   \
+		for (_index_type i = 1; i <= m->data[0].val; ++i) {                                        \
+			if (rows[m->data[i].row] && cols[m->data[i].col]) {                                    \
+				_name##_set(sub, row_map[m->data[i].row] - 1, col_map[m->data[i].col] - 1,         \
+							m->data[i].val);                                                       \
+			}                                                                                      \
+		}                                                                                          \
+                                                                                                   \
+		return sub;                                                                                \
+	}                                                                                              \
+                                                                                                   \
+	_name* _name##_exp(_name* m, i64 exp) {                                                        \
+		_name* base = _name##_scale(m, 1);                                                         \
+		_name* ans = _name##_identity(m->data[0].row);                                             \
+                                                                                                   \
+		while (exp > 0) {                                                                          \
+			if (exp % 2 == 1) {                                                                    \
+				_name* tmp = _name##_multiply(ans, base);                                          \
+				_name##_free(ans);                                                                 \
+				ans = tmp;                                                                         \
+			}                                                                                      \
+			_name* tmp = _name##_multiply(base, base);                                             \
+			_name##_free(base);                                                                    \
+			base = tmp;                                                                            \
+			exp >>= 1;                                                                             \
+		}                                                                                          \
+                                                                                                   \
+		_name##_free(base);                                                                        \
+		return ans;                                                                                \
 	}
 
 #define MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)                                      \
 	_name*		 _name##_new(_index_type row, _index_type col);                                    \
+	_name*		 _name##_identity(_index_type size);                                               \
 	void		 _name##_free(_name* m);                                                           \
 	void		 _name##_rename(_name* m, char* name);                                             \
 	_name##Found _name##_find(_name* m, _index_type row, _index_type col);                         \
@@ -314,8 +397,11 @@
 	_name*		 _name##_add(_name* a, _name* b);                                                  \
 	_name*		 _name##_scale(_name* m, _data_type scalar);                                       \
 	_name*		 _name##_multiply(_name* a, _name* b);                                             \
+	_name*		 _name##_hadamard(_name* a, _name* b);                                             \
 	_name*		 _name##_from_1d(_data_type* data, _index_type row, _index_type col);              \
-	_name*		 _name##_from_2d(_data_type** data, _index_type row, _index_type col);
+	_name*		 _name##_from_2d(_data_type** data, _index_type row, _index_type col);             \
+	_name*		 _name##_submatrix(_name* m, bool* rows, bool* cols);                              \
+	_name*		 _name##_exp(_name* m, i64 exp);
 
 /**
  * @brief You can use this macro to create a matrix type and its methods.
