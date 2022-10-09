@@ -53,7 +53,7 @@ clean: clean-dir clean-dev clean-prod
 
 # `make test`: run all tests
 test: prod prepare-test
-	@for file in $(addprefix $(TEST_DIR), $(notdir $(TEST_FILES:.c=))); do ./$$file; done
+	@for file in $(addprefix $(TEST_DIR), $(notdir $(TEST_FILES:.c=))); do ./$$file || exit 1; done
 	@echo \\033[92mAll tests passed.\\033[m
 
 # Compile executable targets
