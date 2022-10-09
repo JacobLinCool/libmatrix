@@ -9,6 +9,8 @@
 MATRIX_DECLARE(Matrix, f64, u32);
 MATRIX(Matrix, f64, u32);
 
+void test_operations();
+
 int main() {
 	srand(1481);
 
@@ -70,5 +72,99 @@ int main() {
 
 	Matrix_free(transposed);
 	Matrix_free(matrix);
+
+	Matrix* id = Matrix_identity(3);
+	assert(id->data[0].row == 3);
+	assert(id->data[0].col == 3);
+	assert(id->data[0].val == 3);
+
+	assert(Matrix_get(id, 0, 0) == 1.0);
+	assert(Matrix_get(id, 0, 1) == 0.0);
+	assert(Matrix_get(id, 0, 2) == 0.0);
+	assert(Matrix_get(id, 1, 0) == 0.0);
+	assert(Matrix_get(id, 1, 1) == 1.0);
+	assert(Matrix_get(id, 1, 2) == 0.0);
+	assert(Matrix_get(id, 2, 0) == 0.0);
+	assert(Matrix_get(id, 2, 1) == 0.0);
+	assert(Matrix_get(id, 2, 2) == 1.0);
+	Matrix_free(id);
+
+	test_operations();
+
 	return EXIT_SUCCESS;
+}
+
+void test_operations() {
+	Matrix* a = Matrix_from_1d((f64[]){1.0, 2.0, 3.0, 4.0}, 2, 2);
+	Matrix* b = Matrix_from_1d((f64[]){5.0, 6.0, 7.0, 8.0}, 2, 2);
+
+	Matrix* c = Matrix_add(a, b);
+	assert(c->data[0].row == 2);
+	assert(c->data[0].col == 2);
+	assert(c->data[0].val == 4);
+
+	assert(Matrix_get(c, 0, 0) == 6.0);
+	assert(Matrix_get(c, 0, 1) == 8.0);
+	assert(Matrix_get(c, 1, 0) == 10.0);
+	assert(Matrix_get(c, 1, 1) == 12.0);
+	Matrix_free(c);
+
+	Matrix* d = Matrix_scale(a, 2.0);
+	assert(d->data[0].row == 2);
+	assert(d->data[0].col == 2);
+	assert(d->data[0].val == 4);
+
+	assert(Matrix_get(d, 0, 0) == 2.0);
+	assert(Matrix_get(d, 0, 1) == 4.0);
+	assert(Matrix_get(d, 1, 0) == 6.0);
+	assert(Matrix_get(d, 1, 1) == 8.0);
+	Matrix_free(d);
+
+	Matrix* e = Matrix_multiply(a, b);
+	assert(e->data[0].row == 2);
+	assert(e->data[0].col == 2);
+	assert(e->data[0].val == 4);
+
+	assert(Matrix_get(e, 0, 0) == 19.0);
+	assert(Matrix_get(e, 0, 1) == 22.0);
+	assert(Matrix_get(e, 1, 0) == 43.0);
+	assert(Matrix_get(e, 1, 1) == 50.0);
+	Matrix_free(e);
+
+	Matrix* f = Matrix_hadamard(a, b);
+	assert(f->data[0].row == 2);
+	assert(f->data[0].col == 2);
+	assert(f->data[0].val == 4);
+
+	assert(Matrix_get(f, 0, 0) == 5.0);
+	assert(Matrix_get(f, 0, 1) == 12.0);
+	assert(Matrix_get(f, 1, 0) == 21.0);
+	assert(Matrix_get(f, 1, 1) == 32.0);
+	Matrix_free(f);
+
+	Matrix* g = Matrix_exp(a, 11);
+	assert(g->data[0].row == 2);
+	assert(g->data[0].col == 2);
+	assert(g->data[0].val == 4);
+
+	assert(Matrix_get(g, 0, 0) == 25699957.0);
+	assert(Matrix_get(g, 0, 1) == 37455814.0);
+	assert(Matrix_get(g, 1, 0) == 56183721.0);
+	assert(Matrix_get(g, 1, 1) == 81883678.0);
+	Matrix_free(g);
+
+	Matrix* matrix = Matrix_from_1d(
+		(f64[]){1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, 3, 4);
+
+	Matrix* sub = Matrix_submatrix(matrix, (bool[]){1, 0, 1}, (bool[]){0, 1, 1, 0});
+	assert(sub->data[0].row == 2);
+	assert(sub->data[0].col == 2);
+	assert(sub->data[0].val == 4);
+
+	assert(Matrix_get(sub, 0, 0) == 2.0);
+	assert(Matrix_get(sub, 0, 1) == 3.0);
+	assert(Matrix_get(sub, 1, 0) == 10.0);
+	assert(Matrix_get(sub, 1, 1) == 11.0);
+	Matrix_free(sub);
+	Matrix_free(matrix);
 }
