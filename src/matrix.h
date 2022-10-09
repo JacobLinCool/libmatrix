@@ -419,7 +419,7 @@
 /**
  * @brief You can use this macro to declare a matrix type and its methods in a header file.
  */
-#define MATRIX_DECLARE(_name, _data_type, _index_type)                                             \
+#define DECLARE_MATRIX(_name, _data_type, _index_type)                                             \
 	MATRIX_STRUCT_DECLARE(_name, _data_type, _index_type)                                          \
 	MATRIX_SAFE_GUARD_DECLARE(_name, _data_type, _index_type)                                      \
 	MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)
