@@ -52,10 +52,10 @@
 		_name* m = malloc(sizeof(_name));                                                          \
 		u64	   init_size = 1, tmp = size;                                                          \
 		while (tmp >>= 1) {                                                                        \
-			init_size <<= 1;                                                                       \
+			++init_size;                                                                           \
 		}                                                                                          \
 		m->size = init_size;                                                                       \
-		m->data = malloc(sizeof(_name##Element) * (init_size << 1));                               \
+		m->data = malloc(sizeof(_name##Element) * (1 << init_size));                               \
 		m->data[0] = (_name##Element){size, size, size};                                           \
 		for (u64 i = 0; i < size; i++) {                                                           \
 			m->data[i + 1] = (_name##Element){i, i, 1};                                            \
@@ -158,7 +158,7 @@
 		return arr;                                                                                \
 	}                                                                                              \
                                                                                                    \
-	void _name##_resize(_name* m, _index_type row, _index_type col) {                              \
+	void _name##_reshape(_name* m, _index_type row, _index_type col) {                             \
 		m->data[0].row = row;                                                                      \
 		m->data[0].col = col;                                                                      \
                                                                                                    \
@@ -384,6 +384,142 @@
                                                                                                    \
 		_name##_free(base);                                                                        \
 		return ans;                                                                                \
+	}                                                                                              \
+                                                                                                   \
+	bool _name##_validate(_name* m) {                                                              \
+		if (m->data[0].row <= 0 || m->data[0].col <= 0) {                                          \
+			return false;                                                                          \
+		}                                                                                          \
+                                                                                                   \
+		_index_type capacity = 1;                                                                  \
+		for (_index_type i = 1; i <= m->size; ++i) {                                               \
+			capacity <<= 1;                                                                        \
+		}                                                                                          \
+		--capacity;                                                                                \
+		if (m->data[0].val > capacity) {                                                           \
+			return false;                                                                          \
+		}                                                                                          \
+                                                                                                   \
+		for (_index_type i = 1; i <= m->data[0].val; ++i) {                                        \
+			if (m->data[i].row >= m->data[0].row || m->data[i].col >= m->data[0].col) {            \
+				return false;                                                                      \
+			}                                                                                      \
+                                                                                                   \
+			if (i > 1 && m->data[i].row < m->data[i - 1].row) {                                    \
+				return false;                                                                      \
+			}                                                                                      \
+		}                                                                                          \
+                                                                                                   \
+		return true;                                                                               \
+	}                                                                                              \
+                                                                                                   \
+	int _name##Element_compare(const void* a, const void* b) {                                     \
+		_name##Element* x = (_name##Element*)a;                                                    \
+		_name##Element* y = (_name##Element*)b;                                                    \
+                                                                                                   \
+		if (x->row < y->row) {                                                                     \
+			return -1;                                                                             \
+		} else if (x->row > y->row) {                                                              \
+			return 1;                                                                              \
+		} else {                                                                                   \
+			if (x->col < y->col) {                                                                 \
+				return -1;                                                                         \
+			} else if (x->col > y->col) {                                                          \
+				return 1;                                                                          \
+			} else {                                                                               \
+				return 0;                                                                          \
+			}                                                                                      \
+		}                                                                                          \
+	}                                                                                              \
+                                                                                                   \
+	void _name##_rebuild(_name* m) {                                                               \
+		u8 size = m->size;                                                                         \
+                                                                                                   \
+		while (m->data[0].val > (1 << size) - 1) {                                                 \
+			++size;                                                                                \
+		}                                                                                          \
+		m->data = realloc(m->data, sizeof(_name##Element) * (1 << size));                          \
+		m->size = size;                                                                            \
+                                                                                                   \
+		qsort(m->data + 1, m->data[0].val, sizeof(_name##Element), _name##Element_compare);        \
+	}                                                                                              \
+                                                                                                   \
+	bool _name##_shape_equal(_name* a, _name* b) {                                                 \
+		if (a->data[0].row != b->data[0].row || a->data[0].col != b->data[0].col) {                \
+			return false;                                                                          \
+		}                                                                                          \
+		return true;                                                                               \
+	}                                                                                              \
+                                                                                                   \
+	bool _name##_equal(_name* a, _name* b) {                                                       \
+		if (a->data[0].row != b->data[0].row || a->data[0].col != b->data[0].col ||                \
+			a->data[0].val != b->data[0].val) {                                                    \
+			return false;                                                                          \
+		}                                                                                          \
+                                                                                                   \
+		for (_index_type i = 1; i <= a->data[0].val; ++i) {                                        \
+			if (a->data[i].row != b->data[i].row || a->data[i].col != b->data[i].col ||            \
+				a->data[i].val != b->data[i].val) {                                                \
+				return false;                                                                      \
+			}                                                                                      \
+		}                                                                                          \
+                                                                                                   \
+		return true;                                                                               \
+	}                                                                                              \
+                                                                                                   \
+	bool _name##_is_square(_name* m) { return m->data[0].row == m->data[0].col; }                  \
+                                                                                                   \
+	_name* _name##_map(_name* m, _data_type (*func)(_data_type, _index_type, _index_type)) {       \
+		_name* ans = _name##_new(m->data[0].row, m->data[0].col);                                  \
+                                                                                                   \
+		for (_index_type i = 1; i <= m->data[0].val; ++i) {                                        \
+			_name##_set(ans, m->data[i].row, m->data[i].col,                                       \
+						func(m->data[i].val, m->data[i].row, m->data[i].col));                     \
+		}                                                                                          \
+                                                                                                   \
+		return ans;                                                                                \
+	}                                                                                              \
+                                                                                                   \
+	_data_type* _name##_max_value(_name* m) {                                                      \
+		_data_type* ans = malloc(sizeof(_data_type));                                              \
+		*ans = m->data[1].val;                                                                     \
+		for (_index_type i = 2; i <= m->data[0].val; ++i) {                                        \
+			if (m->data[i].val > *ans) {                                                           \
+				*ans = m->data[i].val;                                                             \
+			}                                                                                      \
+		}                                                                                          \
+		return ans;                                                                                \
+	}                                                                                              \
+                                                                                                   \
+	_data_type* _name##_min_value(_name* m) {                                                      \
+		_data_type* ans = malloc(sizeof(_data_type));                                              \
+		*ans = m->data[1].val;                                                                     \
+		for (_index_type i = 2; i <= m->data[0].val; ++i) {                                        \
+			if (m->data[i].val < *ans) {                                                           \
+				*ans = m->data[i].val;                                                             \
+			}                                                                                      \
+		}                                                                                          \
+		return ans;                                                                                \
+	}                                                                                              \
+                                                                                                   \
+	_data_type _name##_sum(_name* m) {                                                             \
+		_data_type ans = 0;                                                                        \
+		for (_index_type i = 1; i <= m->data[0].val; ++i) {                                        \
+			ans += m->data[i].val;                                                                 \
+		}                                                                                          \
+		return ans;                                                                                \
+	}                                                                                              \
+                                                                                                   \
+	_data_type _name##_mean(_name* m) { return _name##_sum(m) / m->data[0].val; }                  \
+                                                                                                   \
+	_data_type _name##_trace(_name* m) {                                                           \
+		_data_type ans = 0;                                                                        \
+		for (_index_type i = 1; i <= m->data[0].val; ++i) {                                        \
+			if (m->data[i].row == m->data[i].col) {                                                \
+				ans += m->data[i].val;                                                             \
+			}                                                                                      \
+		}                                                                                          \
+		return ans;                                                                                \
 	}
 
 #define MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)                                      \
@@ -396,7 +532,7 @@
 	_data_type	 _name##_get(_name* m, _index_type row, _index_type col);                          \
 	_data_type*	 _name##_to_1d(_name* m);                                                          \
 	_data_type** _name##_to_2d(_name* m);                                                          \
-	void		 _name##_resize(_name* m, _index_type row, _index_type col);                       \
+	void		 _name##_reshape(_name* m, _index_type row, _index_type col);                      \
 	_name*		 _name##_transpose(_name* m);                                                      \
 	_name*		 _name##_add(_name* a, _name* b);                                                  \
 	_name*		 _name##_scale(_name* m, _data_type scalar);                                       \
@@ -405,7 +541,19 @@
 	_name*		 _name##_from_1d(_data_type* data, _index_type row, _index_type col);              \
 	_name*		 _name##_from_2d(_data_type** data, _index_type row, _index_type col);             \
 	_name*		 _name##_submatrix(_name* m, bool* rows, bool* cols);                              \
-	_name*		 _name##_exp(_name* m, i64 exp);
+	_name*		 _name##_exp(_name* m, i64 exp);                                                   \
+	bool		 _name##_validate(_name* m);                                                       \
+	int			 _name##Element_compare(const void* a, const void* b);                             \
+	void		 _name##_rebuild(_name* m);                                                        \
+	bool		 _name##_shape_equal(_name* a, _name* b);                                          \
+	bool		 _name##_equal(_name* a, _name* b);                                                \
+	bool		 _name##_is_square(_name* m);                                                      \
+	_name*		 _name##_map(_name* m, _data_type (*func)(_data_type, _index_type, _index_type));  \
+	_data_type*	 _name##_max_value(_name* m);                                                      \
+	_data_type*	 _name##_min_value(_name* m);                                                      \
+	_data_type	 _name##_sum(_name* m);                                                            \
+	_data_type	 _name##_mean(_name* m);                                                           \
+	_data_type	 _name##_trace(_name* m);
 
 /**
  * @brief You can use this macro to create a matrix type and its methods.

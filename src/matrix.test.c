@@ -90,6 +90,29 @@ int main() {
 
 	test_operations();
 
+	Matrix* invalid = Matrix_new(3, 3);
+	invalid->data[0].val = 5;
+	assert(Matrix_validate(invalid) == false);
+	Matrix_rebuild(invalid);
+	assert(invalid->size == 3);
+	invalid->data[1].row = invalid->data[1].col = invalid->data[1].val = 2;
+	invalid->data[2].row = invalid->data[2].col = invalid->data[2].val = 1;
+	invalid->data[3].row = invalid->data[3].col = invalid->data[3].val = 0;
+	invalid->data[4].row = 2;
+	invalid->data[4].col = 0;
+	invalid->data[4].val = -1;
+	invalid->data[5].row = 0;
+	invalid->data[5].col = 2;
+	invalid->data[5].val = -2;
+	assert(Matrix_validate(invalid) == false);
+	Matrix_rebuild(invalid);
+	assert(Matrix_validate(invalid) == true);
+	assert(invalid->data[1].row == 0 && invalid->data[1].col == 0 && invalid->data[1].val == 0);
+	assert(invalid->data[2].row == 0 && invalid->data[2].col == 2 && invalid->data[2].val == -2);
+	assert(invalid->data[3].row == 1 && invalid->data[3].col == 1 && invalid->data[3].val == 1);
+	assert(invalid->data[4].row == 2 && invalid->data[4].col == 0 && invalid->data[4].val == -1);
+	assert(invalid->data[5].row == 2 && invalid->data[5].col == 2 && invalid->data[5].val == 2);
+
 	return EXIT_SUCCESS;
 }
 
