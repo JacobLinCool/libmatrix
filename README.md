@@ -35,7 +35,7 @@ Then, you can use all the functions that are defined for `MyMatrix`:
 * `MatrixType_get`
 * `MatrixType_set`
 * `MatrixType_find`
-* `MatrixType_resize`
+* `MatrixType_reshape`
 * `MatrixType_rename`
 * `MatrixType_scale`
 * `MatrixType_transpose`
@@ -119,13 +119,13 @@ if (found.exists) {
 
 This will find the index of the sparse matrix element at the first row and second column.
 
-You can resize a matrix with `MatrixType_resize`:
+You can resize a matrix with `MatrixType_reshape`:
 
 ```c
-MyMatrix_resize(matrix, 4, 4);
+MyMatrix_reshape(matrix, 4, 4);
 ```
 
-By calling `MatrixType_resize`, the matrix will be resized to a new size. If the new size is smaller than the old size, the matrix will be truncated. If the new size is larger than the old size, the only change will be the size of the matrix in the underlying data array.
+By calling `MatrixType_reshape`, the matrix will be resized to a new size. If the new size is smaller than the old size, the matrix will be truncated. If the new size is larger than the old size, the only change will be the size of the matrix in the underlying data array.
 
 ### Matrix Arithmetic
 
