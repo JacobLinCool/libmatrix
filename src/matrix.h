@@ -559,7 +559,6 @@
  * @brief You can use this macro to create a matrix type and its methods.
  */
 #define MATRIX(_name, _data_type, _index_type)                                                     \
-	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
 	MATRIX_SAFE_GUARD(_name, _data_type, _index_type)                                              \
 	MATRIX_METHOD(_name, _data_type, _index_type)
 
@@ -567,6 +566,6 @@
  * @brief You can use this macro to declare a matrix type and its methods in a header file.
  */
 #define DECLARE_MATRIX(_name, _data_type, _index_type)                                             \
-	MATRIX_STRUCT_DECLARE(_name, _data_type, _index_type)                                          \
+	MATRIX_STRUCT(_name, _data_type, _index_type)                                                  \
 	MATRIX_SAFE_GUARD_DECLARE(_name, _data_type, _index_type)                                      \
 	MATRIX_METHOD_DECLARE(_name, _data_type, _index_type)
