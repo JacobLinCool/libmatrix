@@ -2,7 +2,6 @@
  * @file tiny.h
  * @author Jacob Lin (hi@jacoblin.cool)
  * @brief Tiny matrix with float data type and uint8_t index type.
- * @version 0.1
  * @date 2022-10-08
  *
  * @copyright Copyright (c) 2022 Jacob Lin. Released under the MIT license.

@@ -2,7 +2,6 @@
  * @file guard.h
  * @author Jacob Lin (hi@jacoblin.cool)
  * @brief Safe guard for matrix.h
- * @version 0.1
  * @date 2022-10-08
  *
  * @copyright Copyright (c) 2022 Jacob Lin. Released under the MIT license.

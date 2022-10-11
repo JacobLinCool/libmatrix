@@ -2,7 +2,6 @@
  * @file matrix.h
  * @author Jacob Lin (hi@jacoblin.cool)
  * @brief A generic sparse matrix implementation.
- * @version 0.1
  * @date 2022-10-08
  *
  * @copyright Copyright (c) 2022 Jacob Lin. Released under the MIT license.

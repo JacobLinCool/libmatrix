@@ -2,7 +2,6 @@
  * @file oxidation.h
  * @author Jacob Lin (hi@jacoblin.cool)
  * @brief Type aliases and wrapped result type.
- * @version 0.1
  * @date 2022-10-08
  *
  * @copyright Copyright (c) 2022 Jacob Lin. Released under the MIT license.

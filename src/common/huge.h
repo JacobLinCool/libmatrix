@@ -2,7 +2,6 @@
  * @file huge.h
  * @author Jacob Lin (hi@jacoblin.cool)
  * @brief Huge matrix with long double data type and uint64_t index type.
- * @version 0.1
  * @date 2022-10-08
  *
  * @copyright Copyright (c) 2022 Jacob Lin. Released under the MIT license.
