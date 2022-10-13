@@ -1,3 +1,4 @@
+#define DEBUG
 #include "matrix.h"
 
 #include <assert.h>
@@ -113,6 +114,17 @@ int main() {
 	assert(invalid->data[3].row == 1 && invalid->data[3].col == 1 && invalid->data[3].val == 1);
 	assert(invalid->data[4].row == 2 && invalid->data[4].col == 0 && invalid->data[4].val == -1);
 	assert(invalid->data[5].row == 2 && invalid->data[5].col == 2 && invalid->data[5].val == 2);
+
+	Matrix* x = Matrix_new(10, 10);
+	Matrix_set(x, 0, 0, 111);
+	Matrix_set(x, 1, 1, 222);
+	Matrix_set(x, 2, 2, 333);
+	Matrix_set(x, 1, 3, 444);
+
+	assert(Matrix_get(x, 0, 0) == 111);
+	assert(Matrix_get(x, 1, 1) == 222);
+	assert(Matrix_get(x, 2, 2) == 333);
+	assert(Matrix_get(x, 1, 3) == 444);
 
 	return EXIT_SUCCESS;
 }
