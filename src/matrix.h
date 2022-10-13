@@ -15,6 +15,12 @@
 #include "oxidation.h"
 #include "utils.h"
 
+#ifdef DEBUG
+#define PRINT(...) printf(__VA_ARGS__)
+#else
+#define PRINT(...)
+#endif
+
 #define MATRIX_STRUCT(_name, _data_type, _index_type)                                              \
 	typedef struct _name##Element {                                                                \
 		_index_type row;                                                                           \
@@ -57,7 +63,7 @@
 		m->size = init_size;                                                                       \
 		m->data = malloc(sizeof(_name##Element) * (1 << init_size));                               \
 		m->data[0] = (_name##Element){size, size, size};                                           \
-		for (u64 i = 0; i < size; i++) {                                                           \
+		for (u64 i = 0; i < size; ++i) {                                                           \
 			m->data[i + 1] = (_name##Element){i, i, 1};                                            \
 		}                                                                                          \
 		m->name = random_name(4);                                                                  \
@@ -84,6 +90,7 @@
 		while (lower < upper) {                                                                    \
 			_index_type mid = (lower + upper) / 2;                                                 \
 			if (m->data[mid].row == row && m->data[mid].col == col) {                              \
+				PRINT("Found at %d\n", mid);                                                       \
 				return (_name##Found){true, mid};                                                  \
 			} else if (m->data[mid].row < row ||                                                   \
 					   (m->data[mid].row == row && m->data[mid].col < col)) {                      \
@@ -92,10 +99,13 @@
 				upper = mid;                                                                       \
 			}                                                                                      \
 		}                                                                                          \
+                                                                                                   \
+		PRINT("Not found, fall to %d\n", lower);                                                   \
 		return (_name##Found){false, lower};                                                       \
 	}                                                                                              \
                                                                                                    \
 	void _name##_set(_name* m, _index_type row, _index_type col, _data_type val) {                 \
+		PRINT("\x1b[93m" #_name "_set %d %d %d start\x1b[m\n", row, col, val);                     \
 		if (_name##_out_range(m, row, col)) {                                                      \
 			return;                                                                                \
 		}                                                                                          \
@@ -114,14 +124,17 @@
 			m->data[found.index].val = val;                                                        \
 		} else {                                                                                   \
 			if ((1 << m->size) <= m->data[0].val + 1) {                                            \
-				m->data = realloc(m->data, sizeof(_name##Element) * (1 << (++m->size)));           \
+				PRINT("Reallocating to %d\n", 1 << (m->size + 1));                                 \
+				m->data = realloc(m->data, sizeof(_name##Element) * (1 << ++m->size));             \
 			}                                                                                      \
-			for (_index_type i = m->data[0].val; i > found.index; i--) {                           \
-				m->data[i] = m->data[i - 1];                                                       \
+			for (_index_type i = m->data[0].val; i >= found.index; --i) {                          \
+				PRINT("Moving %d to %d\n", i, i + 1);                                              \
+				memcpy(m->data + i + 1, m->data + i, sizeof(_name##Element));                      \
 			}                                                                                      \
 			m->data[found.index] = (_name##Element){row, col, val};                                \
 			++m->data[0].val;                                                                      \
 		}                                                                                          \
+		PRINT(#_name "_set %d %d %d end\n", row, col, val);                                        \
 	}                                                                                              \
                                                                                                    \
 	_data_type _name##_get(_name* m, _index_type row, _index_type col) {                           \
