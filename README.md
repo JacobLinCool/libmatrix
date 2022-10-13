@@ -8,15 +8,14 @@ It use sparse matrix representation under the hood.
 
 ### Matrix Declaration
 
-Before you can do anything with a matrix, you need to declare it. This is done with the `MATRIX` macro.
+Before you can do anything with a matrix, you need to declare it. This is done with the `DECLARE_MATRIX` and `MATRIX` macro.
 
 ```c
-// definitions (with implementations), usually in a source file
-MATRIX(MyMatrix, double, int64_t);
-
-// sometimes, you may want to use the following macro instead of the above one
 // declarations (without implementations), usually in a header file
 DECLARE_MATRIX(MyMatrix, double, int64_t);
+
+// definitions (with implementations), usually in a source file
+MATRIX(MyMatrix, double, int64_t);
 ```
 
 This declares a matrix type named `MyMatrix` with a `double` as the data type and an `int64_t` as the index type.
